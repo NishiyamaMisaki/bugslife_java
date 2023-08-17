@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -13,14 +15,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.service.UserService;
+
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+	// ログインユーザー情報を取得し、ロールに応じて処理を分岐する
+	@Autowired
+	private UserService userService;
 
 	@GetMapping
-	public String index(Model model, Authentication authentication) {
+	public String index(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
+		boolean isAdmin = userService.isAdmin(authentication);
+		if (isAdmin == false) {
+			redirectAttributes.addFlashAttribute("error", "権限がありません");
+			return "redirect:/";
+		}
 		return "admin/index";
 	}
 
