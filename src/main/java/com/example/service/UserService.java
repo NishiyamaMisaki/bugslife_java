@@ -3,6 +3,7 @@ package com.example.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.form.UserSearchForm;
@@ -43,10 +44,16 @@ public class UserService {
 	 */
 	@Transactional(readOnly = false)
 	public User save(User entity) {
+
+		// entity.setPassword("{noop}" + entity.getPassword());を下記のように修正
+		entity.setPassword(entity.getPassword());
+
 		/**
 		 * パスワードをjavaの暗号化方式を付与する
 		 */
-		entity.setPassword("{noop}" + entity.getPassword());
+		BCryptPasswordEncoder bcpe = new BCryptPasswordEncoder();
+		String hashedPass = bcpe.encode(entity.getPassword());
+		entity.setPassword(hashedPass);
 		return userRepository.save(entity);
 	}
 
@@ -70,7 +77,8 @@ public class UserService {
 		return userRepository.findByEmail(email);
 	}
 
-	@SuppressWarnings("unchecked")
+	// ユーザー検索機能
+	@SuppressWarnings("unchecked") // 機能安全でない型のカーストなどの場合の「unchecked」警告を無視する。
 	public List<User> search(UserSearchForm form, boolean isAdmin) {
 		String role = isAdmin ? "ADMIN" : "USER";
 		if (form.getName() != null && form.getName() != "") {
