@@ -7,11 +7,11 @@
   white-space: nowrap;
 }
 
-/* .for-tablet,.text-overflow{
+.for-tablet,.text-overflow{
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-} */
+}
 
 /* 詳細 */
 span.font-impact {
