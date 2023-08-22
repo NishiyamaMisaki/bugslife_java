@@ -7,6 +7,12 @@
   white-space: nowrap;
 }
 
+/* .for-tablet,.text-overflow{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+} */
+
 /* 詳細 */
 span.font-impact {
   font-family: "Impact";
@@ -33,7 +39,7 @@ a.btn-link {
 }
 
 /* タブレット */
-@media (max-width: 768px) { 
+@media (max-width: 768px) {
   /* 一覧 */
   .for-tablet {
     display: none;
@@ -53,7 +59,7 @@ a.btn-link {
   .for-pc.for-tablet {
     display: none;
   }
-  
+
   .app-show-container {
     width: 1500px;
   }
