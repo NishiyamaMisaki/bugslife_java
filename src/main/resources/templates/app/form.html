@@ -23,7 +23,18 @@
           type="text"
           class="form-control"
           th:field="*{name}"
-          style ='height: 200px; width: max-content;'
+          style="height: 200px; width: max-content"
+        />
+      </div>
+      <div class="form-group">
+        <label for="url">Url</label>
+        <input
+          id="url"
+          name="url"
+          type="text"
+          class="form-control"
+          th:field="*{url}"
+          style="height: 200px; width: max-content"
         />
       </div>
       <div class="form-group">
@@ -34,7 +45,7 @@
           type="text"
           class="form-control"
           th:field="*{description}"
-          style ='height: 200px; width: max-content;'
+          style="height: 200px; width: max-content"
         />
       </div>
       <div class="form-group">
@@ -63,7 +74,7 @@
           type="text"
           class="form-control"
           th:field="*{developer}"
-          style ='height: 200px; width: max-content;'
+          style="height: 200px; width: max-content"
         />
       </div>
       <div class="form-check">
@@ -81,18 +92,18 @@
       <a th:href="@{/apps}" class="btn btn-default">Back</a>
     </form>
     <script>
-      window.addEventListener('load', function () {
-        const imageFile = document.getElementById('image_file');
-        const image = document.getElementById('image');
-        imageFile.addEventListener('change', function () {
+      window.addEventListener("load", function () {
+        const imageFile = document.getElementById("image_file");
+        const image = document.getElementById("image");
+        imageFile.addEventListener("change", function () {
           const file = imageFile.files[0];
           const reader = new FileReader();
-          reader.addEventListener('load', function () {
+          reader.addEventListener("load", function () {
             image.value = reader.result;
-            const imagePreview = document.createElement('img');
-            imagePreview.id = 'image_preview';
+            const imagePreview = document.createElement("img");
+            imagePreview.id = "image_preview";
             imagePreview.src = reader.result;
-            imagePreview.style = "max-width: 200px; max-height: 200px;"
+            imagePreview.style = "max-width: 200px; max-height: 200px;";
 
             imageFile.after(imagePreview);
           });
