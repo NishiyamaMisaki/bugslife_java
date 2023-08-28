@@ -32,13 +32,17 @@ public class ShopController {
 
 	@GetMapping
 	public String index(Model model, @RequestParam(name = "name", required = false) Optional<String> name) {
+		// 入力された検索条件をprobeに設定する
 		Shop probe = new Shop();
 		if (name.isPresent()) {
 			probe.setName(name.get());
 		}
+
+		// findAll()にprobeを渡して、検索を実行する
 		List<Shop> shops = shopService.findAll(probe);
 		model.addAttribute("listShop", shops);
 		model.addAttribute("name", name.isPresent() ? name.get() : null);
+
 		return "shop/index";
 	}
 
