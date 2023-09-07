@@ -25,10 +25,10 @@ public class CategoryService {
 		return categoryRepository.findAll();
 	}
 
-	public List<Category> findAllOrderByDisplayOrder() {
-		Sort sort = Sort.by(Sort.Direction.DESC, "displayOrder", "id");
-		return categoryRepository.findAll(sort);
-	}
+	// public List<Category> findAllOrderByDisplayOrder() {
+	// Sort sort = Sort.by(Sort.Direction.DESC, "displayOrder", "id");
+	// return categoryRepository.findAll(sort);
+	// }
 
 	public Optional<Category> findOne(Long id) {
 		return categoryRepository.findById(id);

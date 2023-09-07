@@ -6,6 +6,7 @@ $(document).ready(function () {
     url: "/api/category/" + categoryId,
     type: "GET",
     dataType: "json",
+    contentType: "application/json",
   })
     .done(function (data) {
       var categoryProducts = data;
@@ -45,7 +46,11 @@ $(document).ready(function () {
       data: postData,
     }).done(function (data) {
       $("#success-message").text(data).show().fadeOut(3000);
-    });
+    }.fail(function () {
+      // APIコールが失敗した場合の処理
+      validation(checkedIds);
+    })
+    );
   });
 
   validation = function (checkedIds) {
