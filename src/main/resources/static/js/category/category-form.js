@@ -26,7 +26,7 @@ $(document).ready(function () {
       // nameのバリデーション
       if (id === "name") {
         let name = $(this).val();
-        if (name === "" || name.length >= 20) {
+        if (name === "" || name.length > 20) {
           $(this).addClass("is-invalid");
           isValid = false;
         } else {
@@ -38,6 +38,7 @@ $(document).ready(function () {
       // desplay_orderのバリデーション
       if (id === "display_order") {
         let displayOrder = $(this).val();
+        // ここで数字かどうかの判定を行う
         if (displayOrder === "" || displayOrder < 0 || displayOrder > 999) {
           $(this).addClass("is-invalid");
           isValid = false;
