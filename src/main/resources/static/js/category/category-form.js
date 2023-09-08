@@ -38,7 +38,6 @@ $(document).ready(function () {
       // desplay_orderのバリデーション
       if (id === "display_order") {
         let displayOrder = $(this).val();
-        // ここで数字かどうかの判定を行う
         if (displayOrder === "" || displayOrder < 0 || displayOrder > 999) {
           $(this).addClass("is-invalid");
           isValid = false;
