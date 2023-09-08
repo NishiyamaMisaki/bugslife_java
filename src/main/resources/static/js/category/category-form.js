@@ -9,10 +9,10 @@ $(document).ready(function () {
   function validateForm() {
     var isValid = true;
     $(".form-control").each(function () {
-      let id = $(this).attr("id");
+        let id = $(this).attr("id");
 
-      // codeのバリデーション
-      if (id === "code") {
+        // codeのバリデーション
+        if (id === "code") {
         let code = $(this).val();
         if (code === "" || !isPatternValid(code)) {
           $(this).addClass("is-invalid");
@@ -26,7 +26,7 @@ $(document).ready(function () {
       // nameのバリデーション
       if (id === "name") {
         let name = $(this).val();
-        if (name === "" || name.length >= 20) {
+        if (name === "" || name.length > 20) {
           $(this).addClass("is-invalid");
           isValid = false;
         } else {
@@ -45,12 +45,25 @@ $(document).ready(function () {
           $(this).removeClass("is-invalid");
         }
       }
-    });
+
+      // discritptionのバリデーション(300字以内)
+      if (id === "description") {
+          let description = $(this).val();
+          if (description.length >= 301) {
+            $(this).addClass("is-invalid");
+            isValid = false;
+          } else {
+            $(this).removeClass("is-invalid");
+          }
+          console.log(description.length);
+        }
+      });
     return isValid;
   }
 
+  // 半角大文字アルファベット3文字 + ハイフン + 半角数字3文字の計7文字
   function isPatternValid(code) {
-    let pattern = /^([A-Z]{3}[0-9]{3})$/;
+    let pattern = /^([A-Z]{3}\-{1}[0-9]{3})$/;
     return pattern.test(code);
   }
 });
