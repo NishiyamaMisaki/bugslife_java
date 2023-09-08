@@ -63,6 +63,7 @@ public class CategoryController {
 			RedirectAttributes redirectAttributes) {
 		Category category = null;
 		category = categoryService.save(entity);
+		redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_INSERT);
 		redirectAttributes.addAttribute("q", "create");
 		return "redirect:/categories";
 	}
@@ -85,6 +86,7 @@ public class CategoryController {
 			RedirectAttributes redirectAttributes) {
 		Category category = null;
 		category = categoryService.save(entity);
+		redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_UPDATE);
 		redirectAttributes.addAttribute("q", "update");
 		return "redirect:/categories/" + category.getId() + "/productRelation";
 	}

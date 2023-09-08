@@ -1,22 +1,22 @@
-  $(document).ready(function () {
-  // 表示順をソートする(準備)
-  var tabale = document.getElementById(".table");
-  var displayOrderArray = [];
-  var displayOrderElement = document.querySelectorAll(".display-order");
-  displayOrderElement.forEach(function (element) {
-    displayOrderArray.push(element.textContent);
-  });
+$(document).ready(function () {
+  // テーブル要素を取得
+  var table = document.getElementById("category-table");
+  var tbody = table.querySelector("tbody"); // tbody要素を取得
+
+  // tbody内の行を取得
+  var rows = Array.from(tbody.rows);
 
   // ソートの実行
-  displayOrderArray.sort(function (a, b) {
+  rows.sort(function (a, b) {
+    var a = parseInt(a.querySelector(".display-order").textContent);
+    var b = parseInt(b.querySelector(".display-order").textContent);
     return a - b;
   });
 
   // ソート結果をHTMLへ反映
-  displayOrderArray.forEach(function (displayOrder, index) {
-    displayOrderElement[index].textContent = displayOrder;
-  });
-
+  for (var i = 0; i < rows.length; i++) {
+    tbody.appendChild(rows[i]); // 行を順番に追加
+  }
 
   // ツールチップの表示
   var tooltipTriggerList = [].slice.call(
