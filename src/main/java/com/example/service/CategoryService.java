@@ -7,7 +7,6 @@ import com.example.model.CategoryProduct;
 import com.example.repository.CategoryRepository;
 import com.example.repository.CategoryProductRepository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Sort;
 import java.util.List;
 import java.util.Optional;
 
