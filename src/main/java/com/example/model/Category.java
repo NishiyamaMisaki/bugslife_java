@@ -43,4 +43,6 @@ public class Category extends TimeEntity implements Serializable {
 
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<CategoryProduct> categoryProducts;
+
+	// protectedとのリレーション
 }
