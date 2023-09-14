@@ -24,7 +24,6 @@ import com.example.model.Category;
 import com.example.service.CategoryService;
 import com.example.model.Product;
 import com.example.service.ProductService;
-import com.example.utils.CheckUtil;
 
 @Controller
 @RequestMapping("/categories")
@@ -38,7 +37,7 @@ public class CategoryController {
 
 	@GetMapping
 	public String index(Model model) {
-		List<Category> all = categoryService.findAllOrderByDisplayOrder();
+		List<Category> all = categoryService.findAll();
 		model.addAttribute("listCategory", all);
 		return "category/index";
 	}
@@ -63,23 +62,10 @@ public class CategoryController {
 	public String create(@Validated @ModelAttribute Category entity, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		Category category = null;
-		try {
-			// descriptionは2000文字まで
-			if (!CheckUtil.checkDescriptionLength(entity.getDescription())) {
-				// NG
-				redirectAttributes.addFlashAttribute("error", Message.MSG_VALIDATE_ERROR);
-				return "redirect:/categories";
-			}
-
-			category = categoryService.save(entity);
-			redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_INSERT);
-			redirectAttributes.addAttribute("q", "create");
-			return "redirect:/categories/" + category.getId() + "/productRelation";
-		} catch (Exception e) {
-			redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
-			e.printStackTrace();
-			return "redirect:/categories";
-		}
+		category = categoryService.save(entity);
+		redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_INSERT);
+		redirectAttributes.addAttribute("q", "create");
+		return "redirect:/categories";
 	}
 
 	@GetMapping("/{id}/edit")
@@ -99,24 +85,10 @@ public class CategoryController {
 	public String update(@Validated @ModelAttribute Category entity, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		Category category = null;
-		try {
-			// descriptionは2000文字まで
-			if (!CheckUtil.checkDescriptionLength(entity.getDescription())) {
-				// NG
-				redirectAttributes.addFlashAttribute("error", Message.MSG_VALIDATE_ERROR);
-				return "redirect:/categories";
-			}
-
-			category = categoryService.save(entity);
-			redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_UPDATE);
-			redirectAttributes.addAttribute("q", "update");
-
-			return "redirect:/categories/" + category.getId() + "/productRelation";
-		} catch (Exception e) {
-			redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
-			e.printStackTrace();
-			return "redirect:/categories";
-		}
+		category = categoryService.save(entity);
+		redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_UPDATE);
+		redirectAttributes.addAttribute("q", "update");
+		return "redirect:/categories/" + category.getId() + "/productRelation";
 	}
 
 	@DeleteMapping("/{id}")

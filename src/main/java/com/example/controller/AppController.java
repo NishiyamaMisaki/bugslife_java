@@ -109,7 +109,7 @@ public class AppController {
 		}
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/{id}/destroy")
 	public String delete(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
 		try {
 			if (id != null) {
