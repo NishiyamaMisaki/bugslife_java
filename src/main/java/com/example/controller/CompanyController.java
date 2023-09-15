@@ -103,10 +103,21 @@ public class CompanyController {
 	public String create(@ModelAttribute Company entity, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		Company company = null;
-		company = companyService.save(entity);
-		redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_INSERT);
-		redirectAttributes.addAttribute("q", "create");
-		return "redirect:/companies/" + company.getId();
+		try {
+			// 取引先会社名のバリデーション
+			if (!companyService.hasCompanyName(entity.getName())) {
+				redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
+				return "redirect:/companies/new";
+			}
+			company = companyService.save(entity);
+			redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_INSERT);
+			redirectAttributes.addAttribute("q", "create");
+			return "redirect:/companies/" + company.getId();
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
+			e.printStackTrace();
+			return "redirect:/companies";
+		}
 	}
 
 	/**
@@ -141,10 +152,21 @@ public class CompanyController {
 	public String update(@Validated @ModelAttribute Company entity, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		Company company = null;
-		company = companyService.save(entity);
-		redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_UPDATE);
-		redirectAttributes.addAttribute("q", "update");
-		return "redirect:/companies/" + company.getId();
+		try {
+			// 取引先会社名のバリデーション
+			if (!companyService.hasCompanyName(entity.getName())) {
+				redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
+				return "redirect:/companies/" + entity.getId() + "/edit";
+			}
+			company = companyService.save(entity);
+			redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_UPDATE);
+			redirectAttributes.addAttribute("q", "update");
+			return "redirect:/companies/" + company.getId();
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
+			e.printStackTrace();
+			return "redirect:/companies";
+		}
 	}
 
 	/**
