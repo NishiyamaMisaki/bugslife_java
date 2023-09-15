@@ -33,4 +33,11 @@ public class CompanyService {
 		companyRepository.delete(entity);
 	}
 
+	public boolean hasCompanyName(String name) {
+		if (name == null || name.isEmpty()) {
+			return false;
+		}
+		return true;
+	}
+
 }
