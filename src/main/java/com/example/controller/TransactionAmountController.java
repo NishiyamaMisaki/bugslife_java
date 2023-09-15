@@ -148,12 +148,12 @@ public class TransactionAmountController {
 			if (!transactionAmountService.validate(entity)) {
 				// NG
 				redirectAttributes.addFlashAttribute("error", Message.MSG_VALIDATE_ERROR);
-				return "redirect:/companies";
+				return "redirect:/transactionAmounts/" + entity.getId() + "/edit";
 			}
 
 			tAmount = transactionAmountService.save(entity);
 			redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_UPDATE);
-			return "redirect:/companies/" + tAmount.getCompanyId();
+			return "redirect:/transactionAmounts/" + tAmount.getCompanyId();
 		} catch (Exception e) {
 			redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
 			e.printStackTrace();
