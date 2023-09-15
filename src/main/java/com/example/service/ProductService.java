@@ -88,8 +88,17 @@ public class ProductService {
 		}
 
 		if (form.getCategories() != null && form.getCategories().size() > 0) {
-			// categories で完全一致検索
-			query.where(categoryJoin.get("id").in(form.getCategories()));
+			List<Long> productIdList = entityManager
+					.createQuery(
+							"select cp.product.id from CategoryProduct cp where cp.category.id in :categoryIds group by cp.product.id having count(cp.product.id) = :categoryCount",
+							Long.class)
+					.setParameter("categoryIds", form.getCategories())
+					.setParameter("categoryCount", (long)form.getCategories().size())
+					.getResultList();
+
+			query.where(root.get("id").in(productIdList));
+
+			query.where(builder.in(root.get("id")).value(productIdList));
 		}
 
 		// weight で範囲検索(上限/下限片方の指定だけでも検索可能)
