@@ -11,6 +11,7 @@ import com.example.enums.DiscountType;
 import com.example.model.Campaign;
 import com.example.repository.CampaignRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -122,7 +123,7 @@ public class CampaignService {
 		try {
 			idList.forEach(id -> {
 				Campaign campaign = campaignRepository.findById(id).get();
-				// 更新前後のステータスが同じ場合はエラー
+				// 更新前後のステータスが同じ場合はエラーメッセージの表示+更新しない
 				if (nexStatus.getId() == campaign.getStatus().getId()) {
 					throw new RuntimeException(campaign.getName() + "にステータスの変更がないため、ステータスの一括更新に失敗しました。");
 				}
@@ -130,6 +131,7 @@ public class CampaignService {
 				campaignRepository.save(campaign);
 			});
 		} catch (RuntimeException e) {
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			throw new Exception(e.getMessage());
 		}
 	}
