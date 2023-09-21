@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,11 +39,30 @@ public class ShopProductController {
 	@Autowired
 	private CategoryService categoryService;
 
-
 	@GetMapping
 	public String index(Model model, @PathVariable("shopId") Long shopId, @ModelAttribute ProductSearchForm request) {
 		List<ProductWithCategoryName> all = productService.search(shopId, request);
+		// 結果の取得→forで回して、商品毎にカテゴリー配列にpushする→商品のDTOを作成する
 		List<Category> categories = categoryService.findAll();
+		List<ProductWithCategoryName> products = new ArrayList<ProductWithCategoryName>();
+		// allから重複していない商品名を取得する
+		System.out.println("all:" + all.get(0).getName());
+		System.out.println("all:" + all.get(2).getName());
+		System.out.println("all:" + all.get(1).getName());
+
+		// for文で回して、カテゴリーを取得する,商品名が重複している場合は
+		for (ProductWithCategoryName product : all) {
+			System.out.println("product:" + product);
+			// 重複している場合は、カテゴリーを追加する → 重複していない場合は、そのまま追加する
+			for (ProductWithCategoryName productsCategoryName : products) {
+				if (productsCategoryName.getName().equals(product.getName())) {
+					productsCategoryName.setCategoryName(
+							productsCategoryName.getCategoryName() + " , " + product.getCategoryName());
+					System.out.println("productsCategoryName:" + productsCategoryName);
+				}
+			}
+			products.add(product);
+		}
 		model.addAttribute("listProduct", all);
 		model.addAttribute("categories", categories);
 		model.addAttribute("request", request);
@@ -73,7 +93,8 @@ public class ShopProductController {
 	}
 
 	@PostMapping
-	public String create(Model model, @PathVariable("shopId") Long shopId, @Validated @ModelAttribute ProductForm productForm,
+	public String create(Model model, @PathVariable("shopId") Long shopId,
+			@Validated @ModelAttribute ProductForm productForm,
 			BindingResult result, RedirectAttributes redirectAttributes) {
 		// バリデーションチェック
 		if (result.hasErrors()) {
@@ -113,8 +134,9 @@ public class ShopProductController {
 	}
 
 	@PutMapping
-	public String update(Model model, @PathVariable("shopId") Long shopId, @Validated @ModelAttribute ProductForm productForm,
-			BindingResult result,RedirectAttributes redirectAttributes) {
+	public String update(Model model, @PathVariable("shopId") Long shopId,
+			@Validated @ModelAttribute ProductForm productForm,
+			BindingResult result, RedirectAttributes redirectAttributes) {
 		System.out.append(Message.MSG_ERROR, 0, 0);
 		// バリデーションチェック
 		if (result.hasErrors()) {
