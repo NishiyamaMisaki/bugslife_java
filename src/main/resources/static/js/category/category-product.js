@@ -39,8 +39,9 @@ $(document).ready(function () {
       // JSON形式に変換
       let postData = {
       productIds: checkedIds,
-      };
-      let postDataJson = JSON.stringify(postData);
+    };
+    // postDateをJSONに変換
+    postData = JSON.stringify(postData);
 
     $.ajax({
       url: "/api/categories/" + categoryId + "/updateCategoryProduct",

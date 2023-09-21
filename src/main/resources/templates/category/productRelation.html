@@ -48,6 +48,7 @@
     <hr />
     <div class="form-group">
       <label for="products">紐付商品一覧: </label>
+      <br>
       <div class="d-inline" th:each="product : ${products}">
         <input
           class="form-check-input"
@@ -60,6 +61,7 @@
           th:for="'checkbox-' + ${product.id}"
           th:text="${product.name}"
         ></label>
+        <br>
       </div>
     </div>
     <button id="update-button" class="btn btn-primary">紐付更新</button>
