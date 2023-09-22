@@ -43,16 +43,7 @@ public class ShopProductController {
 	public String index(Model model, @PathVariable("shopId") Long shopId, @ModelAttribute ProductSearchForm request) {
 		List<ProductWithCategoryName> all = productService.search(shopId, request);
 		List<Category> categories = categoryService.findAll();
-		List<ProductWithCategoryName> products = new ArrayList<ProductWithCategoryName>();
-		for (ProductWithCategoryName product : all) {
-			for (ProductWithCategoryName productsCategoryName : products) {
-				if (productsCategoryName.getName().equals(product.getName())) {
-					productsCategoryName.setCategoryName(
-							productsCategoryName.getCategoryName() + " , " + product.getCategoryName());
-				}
-			}
-			products.add(product);
-		}
+
 		model.addAttribute("listProduct", all);
 		model.addAttribute("categories", categories);
 		model.addAttribute("request", request);
