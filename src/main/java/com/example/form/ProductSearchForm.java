@@ -18,9 +18,14 @@ public class ProductSearchForm {
 	private Double price1;
 	private Double price2;
 
-	public ProductSearchForm(String name, String code, List<Long> categories, Integer weight1, Integer weight2, Integer height1, Integer height2, Double price1, Double price2) {
+	public ProductSearchForm(String name, String code, List<Long> categories, Integer weight1, Integer weight2,
+			Integer height1, Integer height2, Double price1, Double price2) {
 		this.setName(name);
+
+		// 入力されたコードを小文字に変換
+		code = code.toLowerCase();
 		this.setCode(code);
+
 		this.setCategories(categories);
 		this.setWeight1(weight1);
 		this.setWeight2(weight2);
