@@ -23,7 +23,9 @@ public class ProductSearchForm {
 		this.setName(name);
 
 		// 入力されたコードを小文字に変換
-		code = code.toLowerCase();
+		if (code != null) {
+			code = code.toLowerCase();
+		}
 		this.setCode(code);
 
 		this.setCategories(categories);
