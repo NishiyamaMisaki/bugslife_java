@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.constants.Message;
 import com.example.model.Category;
+import com.example.model.CategoryProduct;
 import com.example.service.CategoryService;
 import com.example.model.Product;
 import com.example.service.ProductService;
@@ -114,6 +116,14 @@ public class CategoryController {
 			Optional<Category> category = categoryService.findOne(id);
 			model.addAttribute("category", category.get());
 			model.addAttribute("products", listProduct);
+
+			// カテゴリーIDに紐付いている商品IDをList格納
+			List<Long> data = new ArrayList<>();
+			for (CategoryProduct categoryProduct : category.get().getCategoryProducts()) {
+				Long productId = categoryProduct.getProductId();
+				data.add(productId);
+			}
+			model.addAttribute("data", data);
 
 			if (q != null && (q.equals("create") || q.equals("update"))) {
 				model.addAttribute("action", true);
