@@ -55,7 +55,7 @@
           type="checkbox"
           th:id="'checkbox-' + ${product.id}"
           th:value="${product.id}"
-        />
+          th:checked="${data.contains(product.id) ? true : false}" />
         <label
           class="form-check-label"
           th:for="'checkbox-' + ${product.id}"

@@ -10,12 +10,6 @@ $(document).ready(function () {
     contentType: "application/json",
   })
     .done(function (data) {
-      var categoryProducts = data;
-      console.log("APIコールが成功");
-      // チェックボックスにチェックを入れる処理
-      categoryProducts.forEach(function (categoryProduct) {
-        $("#checkbox-" + categoryProduct.productId).prop("checked", true);
-      });
     })
     .fail(function () {
       // APIコールが失敗した場合の処理
@@ -48,20 +42,16 @@ $(document).ready(function () {
       type: "POST",
       dataType: "json",
       contentType: "application/json",
-      data: postDataJson,
+      data: postData,
+    }).done (function (responseData) {
+      $("#success-message").text(responseData).show().fadeOut(3000);
+    }.fail (function () {
+      // APIコールが失敗した場合の処理
+      validation(checkedIds);
+      console.log("APIコールが失敗しました。");
     })
-      .done(function (data) {
-        $("#success-message")
-          .text(data)
-          .show()
-          .fadeOut(3000);
-        })
-      .fail(function () {
-        // APIコールが失敗した場合の処理
-        validation(checkedIds);
-        console.log("APIコールが失敗しました。");
-      });
-    });
+    );
+  });
 
     validation = function (checkedIds) {
       if (checkedIds.length == 0) {
