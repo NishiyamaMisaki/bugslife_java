@@ -38,7 +38,7 @@ public class Product extends TimeEntity implements Serializable {
 	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Column(name = "code", nullable = false)
+	@Column(name = "code", nullable = true)
 	private String code;
 
 	@Column(name = "weight", nullable = false)
@@ -48,7 +48,7 @@ public class Product extends TimeEntity implements Serializable {
 	private Integer height;
 
 	@Column(name = "price", nullable = false)
-	private Integer price;
+	private Double price;
 
 	@Column(name = "tax_type", nullable = false)
 	private Integer taxType;
@@ -64,7 +64,7 @@ public class Product extends TimeEntity implements Serializable {
 		this.setCode(form.getCode());
 		this.setWeight(form.getWeight());
 		this.setHeight(form.getHeight());
-		this.setPrice(form.getPrice());
+		this.setPrice((double)form.getPrice());
 		this.setTaxType(form.getTaxType());
 	}
 

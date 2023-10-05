@@ -72,7 +72,7 @@ public class TransactionAmountService {
 			return false;
 		}
 		// 金額が0以上か
-		if (entity.getPrice() <= 0) {
+		if (entity.getPrice() < 0) {
 			return false;
 		}
 		// 金額が10億円以下か
@@ -85,7 +85,7 @@ public class TransactionAmountService {
 		}
 		// メモは1000文字以下か
 		if (Objects.nonNull(entity.getMemo())) {
-			if (entity.getMemo().length() >= Validate.TEXT_LENGTH) {
+			if (entity.getMemo().length() > Validate.MEMO_TEXT_LENGTH) {
 				return false;
 			}
 		}
@@ -134,6 +134,9 @@ public class TransactionAmountService {
 			} else {
 				expenseSum += tAmount.getPrice();
 			}
+		}
+		if (incomSum == 0 && expenseSum == 0) {
+			return null;
 		}
 		double ratio = incomSum / (expenseSum + incomSum);
 		return (int)Math.round(ratio * 100);

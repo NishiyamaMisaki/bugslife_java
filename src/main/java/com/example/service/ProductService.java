@@ -15,6 +15,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Root;
 
 import com.example.entity.ProductWithCategoryName;
@@ -37,7 +38,6 @@ public class ProductService {
 
 	@Autowired
 	private CategoryProductRepository categoryProductRepository;
-
 
 	public List<Product> findAll() {
 		return productRepository.findAll();
@@ -63,18 +63,27 @@ public class ProductService {
 		final CriteriaQuery<ProductWithCategoryName> query = builder.createQuery(ProductWithCategoryName.class);
 		final Root<Product> root = query.from(Product.class);
 
-		Join<Product, CategoryProduct> categoryProductJoin = root.joinList("categoryProducts");
-		Join<CategoryProduct, Category> categoryJoin = categoryProductJoin.join("category");
+		// LEFT JOIN でカテゴリー情報を結合
+		Join<Product, CategoryProduct> categoryProductJoin = root.joinList("categoryProducts", JoinType.LEFT);
+		Join<CategoryProduct, Category> categoryJoin = categoryProductJoin.join("category", JoinType.LEFT);
 
 		query.multiselect(
-			root.get("id"),
-			root.get("code"),
-			root.get("name"),
-			root.get("weight"),
-			root.get("height"),
-			root.get("price"),
-			categoryJoin.get("name").alias("categoryName")
-		).where(builder.equal(root.get("shopId"), shopId));
+				root.get("id"),
+				root.get("code"),
+				root.get("name"),
+				root.get("weight"),
+				root.get("height"),
+				root.get("price"),
+				builder.function("GROUP_CONCAT", String.class, categoryJoin.get("name")).alias("categoryName")).where(
+						builder.equal(root.get("shopId"), shopId),
+						builder.like(root.get("name"), "%" + form.getName() + "%"))
+				.groupBy(
+						root.get("id"),
+						root.get("code"),
+						root.get("name"),
+						root.get("weight"),
+						root.get("height"),
+						root.get("price"));
 
 		// formの値を元に検索条件を設定する
 		if (!StringUtils.isEmpty(form.getName())) {
@@ -88,18 +97,38 @@ public class ProductService {
 		}
 
 		if (form.getCategories() != null && form.getCategories().size() > 0) {
-			// categories で完全一致検索
-			query.where(categoryJoin.get("id").in(form.getCategories()));
+			List<Long> productIdList = entityManager
+					.createQuery(
+							"select cp.product.id from CategoryProduct cp where cp.category.id in :categoryIds group by cp.product.id having count(cp.product.id) = :categoryCount",
+							Long.class)
+					.setParameter("categoryIds", form.getCategories())
+					.setParameter("categoryCount", (long)form.getCategories().size())
+					.getResultList();
+
+			query.where(root.get("id").in(productIdList));
+
+			query.where(builder.in(root.get("id")).value(productIdList));
 		}
 
-		// weight で範囲検索
+		// weight で範囲検索(上限/下限片方の指定だけでも検索可能)
 		if (form.getWeight1() != null && form.getWeight2() != null) {
-			query.where(builder.between(root.get("weight"), form.getWeight1(), form.getWeight2()));
+			query.where(builder.between(root.get("weight"), form.getWeight1(),
+					form.getWeight2()));
+		} else if (form.getWeight1() != null) {
+			query.where(builder.greaterThanOrEqualTo(root.get("weight"),
+					form.getWeight1()));
+		} else if (form.getWeight2() != null) {
+			query.where(builder.lessThanOrEqualTo(root.get("weight"),
+					form.getWeight2()));
 		}
 
-		// height で範囲検索
+		// height で範囲検索(上限/下限片方の指定だけでも検索可能)
 		if (form.getHeight1() != null && form.getHeight2() != null) {
 			query.where(builder.between(root.get("height"), form.getHeight1(), form.getHeight2()));
+		} else if (form.getHeight1() != null) {
+			query.where(builder.greaterThanOrEqualTo(root.get("height"), form.getHeight1()));
+		} else if (form.getHeight2() != null) {
+			query.where(builder.lessThanOrEqualTo(root.get("height"), form.getHeight2()));
 		}
 
 		// price で範囲検索
@@ -116,13 +145,16 @@ public class ProductService {
 
 	/**
 	 * ProductFormの内容を元に商品情報を保存する
+	 *
 	 * @param entity
 	 * @return
 	 */
 	@Transactional(readOnly = false)
 	public Product save(ProductForm entity) {
 		// 紐づくカテゴリを事前に取得
-		List<CategoryProduct> categoryProducts = entity.getId() != null ? categoryProductRepository.findByProductId(entity.getId()) : new ArrayList<>();
+		List<CategoryProduct> categoryProducts = entity.getId() != null
+				? categoryProductRepository.findByProductId(entity.getId())
+				: new ArrayList<>();
 
 		Product product = new Product(entity);
 		productRepository.save(product);
