@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.model.Category;
 import com.example.model.CategoryProduct;
-import com.example.model.Product;
-import com.example.repository.ProductRepository;
 import com.example.repository.CategoryRepository;
 import com.example.repository.CategoryProductRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,9 +21,6 @@ public class CategoryService {
 
 	@Autowired
 	private CategoryProductRepository categoryProductRepository;
-
-	@Autowired
-	private ProductRepository productRepository;
 
 	public List<Category> findAll() {
 		return categoryRepository.findAll();
@@ -68,20 +63,9 @@ public class CategoryService {
 			Category category = categoryOptional.get();
 
 			for (Long productId : productIds) {
-				Optional<Product> productOptional = productRepository.findById(productId);
-				if (productOptional.isPresent()) {
-					Product product = productOptional.get();
-
-					// 新しいCategoryProductエンティティを作成
-					CategoryProduct categoryProduct = new CategoryProduct();
-					categoryProduct.setCategory(category);
-					categoryProduct.setProduct(product);
-
-					// CategoryProductエンティティを保存
-					categoryProductRepository.save(categoryProduct);
-				}
+				CategoryProduct categoryProduct = new CategoryProduct(category.getId(), productId);
+				categoryProductRepository.save(categoryProduct);
 			}
 		}
 	}
-
 }
