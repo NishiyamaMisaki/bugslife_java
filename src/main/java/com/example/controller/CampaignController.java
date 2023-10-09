@@ -75,9 +75,12 @@ public class CampaignController {
 	@GetMapping("/{id}")
 	public String show(Model model, @PathVariable("id") Long id) {
 		if (id != null) {
-			Optional<Category> campaign = categoryService.findOne(id);
-			model.addAttribute("campaign", campaign.get());
-			this.setCommonData(model);
+			Optional<Campaign> campaign = campaignService.findOne(id);
+			if (campaign.isPresent()) {
+				model.addAttribute("campaign", campaign.get());
+				this.setCommonData(model);
+				return "campaign/show";
+			}
 		}
 		return "campaign/show";
 	}
@@ -143,7 +146,7 @@ public class CampaignController {
 			if (!CheckUtil.checkDescriptionLength(campaign.getDescription())) {
 				// NG
 				redirectAttributes.addFlashAttribute("error", Message.MSG_VALIDATE_ERROR);
-				return "redirect:/campaigns";
+				return "redirect:/campaigns/" + campaign.getId() + "/edit";
 			}
 
 			target = campaignService.save(campaign);
@@ -152,7 +155,7 @@ public class CampaignController {
 		} catch (Exception e) {
 			redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
 			e.printStackTrace();
-			return "redirect:/campaigns";
+			return "redirect:/campaigns/" + campaign.getId() + "/edit";
 		}
 	}
 
