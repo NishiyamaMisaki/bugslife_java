@@ -1,10 +1,22 @@
 package com.example.controller;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import com.opencsv.CSVWriter;
 
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,6 +28,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.constants.Message;
@@ -26,6 +40,8 @@ import com.example.form.OrderForm;
 import com.example.model.Order;
 import com.example.service.OrderService;
 import com.example.service.ProductService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/orders")
@@ -134,5 +150,112 @@ public class OrderController {
 			e.printStackTrace();
 			return "redirect:/orders";
 		}
+	}
+
+	/**
+	 * 商品発送管理画面
+	 *
+	 * @param model
+	 * @param form
+	 * @return
+	 */
+
+	@GetMapping("/shipping")
+	public String shipping(Model model, @ModelAttribute("form") OrderForm form) {
+		// 空のOrderStatusリストを作成
+		List<OrderStatus> orderStatusList = orderService.findAllOrderStatus();
+		// リストをモデルに追加
+		model.addAttribute("orderShippingList", orderStatusList);
+
+		return "order/shipping";
+	}
+
+	/**
+	 * 商品発送処理
+	 *
+	 * @param id
+	 * @return
+	 */
+	@PostMapping("/shipping")
+	public String shipping(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+		try {
+			orderService.shipping(id);
+			redirectAttributes.addFlashAttribute("success", Message.MSG_SUCESS_SHIPPING);
+			return "redirect:/orders/" + id;
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", Message.MSG_ERROR);
+			e.printStackTrace();
+			return "redirect:/orders";
+		}
+	}
+
+	/**
+	 * CSVインポート処理
+	 *
+	 * @param uploadFile
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@PostMapping("/shipping/upload")
+	public String uploadFile(@RequestParam("file") MultipartFile uploadFile, RedirectAttributes redirectAttributes) {
+
+		if (uploadFile.isEmpty()) {
+			// ファイルが存在しない場合
+			redirectAttributes.addFlashAttribute("error", "ファイルを選択してください。");
+			return "redirect:/orders/shipping";
+		}
+		if (!"text/csv".equals(uploadFile.getContentType())) {
+			// CSVファイル以外の場合
+			redirectAttributes.addFlashAttribute("error", "CSVファイルを選択してください。");
+			return "redirect:/orders/shipping";
+		}
+		try {
+			System.out.println("ファイル: " + uploadFile);
+			orderService.importCSV(uploadFile);
+		} catch (Throwable e) {
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			e.printStackTrace();
+			return "redirect:/orders/shipping";
+		}
+
+		return "redirect:/orders/shipping";
+	}
+
+	/**
+	 * CSVテンプレートダウンロード処理
+	 *
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@PostMapping("/download")
+	public String download(HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		List<OrderStatus> orderStatusList = new ArrayList<>();
+		// orderStatusListにOrderStatusオブジェクトを追加する処理
+
+		List<OrderStatus> filteredList = orderStatusList.stream()
+				.filter(orderStatus -> orderStatus.getOrderStatus().equals(OrderStatus.Orderd))
+				.collect(Collectors.toList());
+
+		String[] header = { "受注 ID", "出荷コード", "出荷日", "配達日", "配達時間帯" };
+		List<String[]> rows = new ArrayList<>();
+		for (OrderStatus orderStatus : filteredList) {
+			String[] row = { orderStatus.getOrderId().toString(), orderStatus.getShippingCode().toString(),
+					orderStatus.getShippedAt().toString(), orderStatus.getDeliveryDate().toString(),
+					orderStatus.getDeliveryTime().toString() };
+			System.out.println("row: " + Arrays.toString(row)); // 配列を文字列に変換して出力
+			rows.add(row);
+		}
+
+		try {
+			// 正しいファイル名を指定してCSVWriterを作成
+			CSVWriter writer = new CSVWriter(new FileWriter("order.csv"));
+			writer.writeNext(header);
+			writer.writeAll(rows);
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

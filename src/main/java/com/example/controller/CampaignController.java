@@ -46,9 +46,6 @@ public class CampaignController {
 	@Autowired
 	private CampaignService campaignService;
 
-	@Autowired
-	private CategoryService categoryService;
-
 	/**
 	 * 一覧画面表示
 	 *

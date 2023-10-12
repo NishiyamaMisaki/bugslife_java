@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.constants.TaxType;
+import com.example.enums.DiscountType;
 import com.example.enums.OrderStatus;
 import com.example.enums.PaymentStatus;
 import com.example.form.OrderForm;
@@ -14,8 +15,15 @@ import com.example.repository.OrderRepository;
 import com.example.repository.ProductRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Optional;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 @Service
@@ -143,4 +151,48 @@ public class OrderService {
 		orderRepository.save(order);
 	}
 
+	/**
+	 * CSVインポート処理
+	 *
+	 * @param file
+	 * @throws IOException
+	 */
+	@Transactional
+	public static void importCSV(MultipartFile file) throws IOException {
+		try (BufferedReader br = new BufferedReader(
+				new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+			String line = br.readLine(); // 1行目はヘッダーなので読み飛ばす
+			List<Order> orders = new ArrayList<>();
+			while ((line = br.readLine()) != null) {
+				final String[] split = line.replace("\"", "").split(",");
+				final Order order = new Order(
+				// csvデータをOrderに変換する処理を記述
+				);
+				orders.add(order);
+			}
+			batchInsert(orders);
+		} catch (Exception e) {
+			throw new RuntimeException("ファイルが読み込めません", e);
+		}
+	}
+
+	/**
+	 * 一括更新処理実行
+	 *
+	 * @param orders
+	 */
+	@Transactional
+	public void batchInsert(List<Order> orders) {
+		// 処理を記述
+	}
+
+	public List<Order> getOrderStatus(String string) {
+		return null;
+	}
+
+	public void shipping(Long id) {}
+
+	public List<Order> findByOrderStatus(String string) {
+		return null;
+	}
 }

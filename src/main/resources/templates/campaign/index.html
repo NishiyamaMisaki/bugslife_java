@@ -8,19 +8,46 @@
     <h1>List Campaign</h1>
     <hr />
     <a th:href="@{/campaigns/new}">New Campaign</a><br /><br />
+
     <div class="row">
-      <form th:method="post" th:action="@{/campaigns/upload_file}" enctype="multipart/form-data" class="row col-md-8">
-        <div class="col-md-9">
-          <input type="file" name="file" accept=".csv" class="form-control">
+      <!-- csvデータのアップロード -->
+      <form 
+        th:method="post" 
+        th:action="@{/campaigns/upload_file}" 
+        enctype="multipart/form-data" 
+        class="row col-md-8">
+        
+      <div class="col-md-9">
+          <input 
+            class="form-control"
+            type="file" 
+            name="file" 
+            accept=".csv" 
+            />
         </div>
+
         <div class="col-md-3">
-          <input type="submit" name="upload_file" value="ファイルをアップロード" class="btn btn-warning">
+          <input 
+          type="submit" 
+          name="upload_file" 
+          value="ファイルをアップロード" 
+          class="btn btn-warning">
         </div>
       </form>
-      <form th:method="post" th:action="@{/campaigns/download}" enctype="multipart/form-data" class="col-md-4">
-          <input type="submit" value="テンプレートをダウンロード" class="btn btn-warning">
+
+      <!-- テンプレートCSVのダウンロード -->
+      <form
+      th:method="post"
+      th:action="@{/campaigns/download}" 
+      enctype="multipart/form-data" 
+      class="col-md-4">
+          <input
+          type="submit"
+          value="テンプレートをダウンロード" 
+          class="btn btn-warning">
       </form>
     </div>
+
     <br />
     <div class="row">
       <div class="col-md-3 row">

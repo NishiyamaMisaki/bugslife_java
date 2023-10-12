@@ -50,4 +50,28 @@ public enum OrderStatus {
 		}
 		return null;
 	}
+
+	public Object getOrderId() {
+		return null;
+	}
+
+	public Object getShippingCode() {
+		return null;
+	}
+
+	public Object getShippedAt() {
+		return null;
+	}
+
+	public Object getDeliveryDate() {
+		return null;
+	}
+
+	public Object getDeliveryTime() {
+		return null;
+	}
+
+	public Object getOrderStatus() {
+		return null;
+	}
 }
