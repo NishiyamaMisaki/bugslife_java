@@ -14,9 +14,14 @@
 }
 
 /* 詳細 */
-span.font-impact {
-  font-family: "Impact";
-  font-size: small;
+h1 {
+  font-family: "Roboto";
+  font-weight: 700;
+}
+
+span.apps-font {
+  font-family: "Noto Sans JP";
+  font-size: 1rem;
 }
 
 a.btn {
@@ -44,12 +49,10 @@ a.btn-link {
   .for-tablet {
     display: none;
   }
+    /* 詳細 */
   .app-show-container {
-    width: 1500px;
-    height: 3000px;
-  }
-  span.font-impact {
-    font-size: x-large;
+    width: 100%;
+    word-wrap: break-word;
   }
 }
 
@@ -60,10 +63,9 @@ a.btn-link {
     display: none;
   }
 
+  /* 詳細 */
   .app-show-container {
-    width: 1500px;
-  }
-  span.font-impact {
-    font-size: xx-large;
+    width: 100%;
+    word-wrap: break-word;
   }
 }
