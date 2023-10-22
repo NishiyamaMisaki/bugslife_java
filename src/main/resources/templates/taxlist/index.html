@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/layout}"
+>
+  <th:block layout:fragment="content">
+    <h1>税率一覧</h1>
+    <a class="btn btn-link" th:href="@{/taxlist/create}">新規作成</a>
+    <hr />
+    <table class="table">
+      <thead>
+        <tr>
+          <th>税率</th>
+          <th>入力価格</th>
+          <th>端数処理</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="taxlist : ${taxlist}">
+          <td th:text="${taxlist.rate + '%'}"></td>
+          <td
+            th:text="${taxlist.tax_included ? '税込み価格' : '税抜き価格'}"
+          ></td>
+          <td
+            th:text="${taxlist.rounding == 'Floor' ? '切り捨て' : (taxlist.rounding == 'Ceil' ? '切り上げ' : '四捨五入')}"
+          ></td>
+          <td>
+            <a
+              class="btn btn-primary"
+              th:href="@{/taxlist/show/{id}(id = ${taxlist.id})}"
+              >詳細</a
+            >
+            <a
+              class="btn btn-secondary"
+              th:href="@{/taxlist/edit/{id}(id = ${taxlist.id})}"
+              >編集</a
+            >
+            <form
+              class="d-inline"
+              th:action="@{/taxlist/{id}(id = ${taxlist.id})}"
+              th:method="delete"
+            >
+              <button class="btn btn-danger" type="submit">削除</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </th:block>
+</html>

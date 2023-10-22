@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/layout}"
+>
+  <th:block layout:fragment="content">
+    <h1 th:if="${taxlist.id == null}">税率新規作成</h1>
+    <h1 th:if="${taxlist.id != null}">税率編集</h1>
+    <hr />
+    <form
+      th:action="@{/taxlist}"
+      th:method="@{${taxlist.id == null} ? 'post' : 'put'}"
+      th:object="${taxlist}"
+    >
+      <input type="hidden" th:field="*{id}" />
+
+      <div class="form-group">
+        <label for="rate">税率</label>
+        <input type="number" id="rate" name="rate" class="form-control" th:field="*{rate}" th:errorclass="is-invalid" />
+
+      <div class="form-group">
+        <label for="tax_included">入力価格</label>
+        <select
+          id="tax_included"
+          name="tax_included"
+          class="form-control"
+          th:field="*{tax_included}"
+          th:errorclass="is-invalid"
+        >
+          <option value="0">税抜き価格</option>
+          <option value="1">税込み価格</option>
+        </select>
+        <div class="invalid-feedback" th:errors="*{tax_included}"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="rounding">端数処理</label>
+        <select
+          id="rounding"
+          name="rounding"
+          class="form-control"
+          th:field="*{rounding}"
+          th:errorclass="is-invalid"
+        >
+          <option value="Floor">切り捨て</option>
+          <option value="Ceil">切り上げ</option>
+          <option value="Round">四捨五入</option>
+        </select>
+        <div class="invalid-feedback" th:errors="*{rounding}"></div>
+      </div>
+
+      <button type="submit" class="btn btn-success">保存</button>
+      <a th:href="@{/taxlist}" class="btn btn-default">戻る</a>
+    </form>
+  </th:block>
+</html>
