@@ -45,15 +45,15 @@
       <span th:if="${tax.rate == 0}">非課税（0%）</span>
     </div>
     <div class="form-group">
-      <label for="taxIncluded">入力価格: </label>
-      <span th:if="${tax.taxIncluded == true}">税込価格</span>
-      <span th:if="${tax.taxIncluded == false}">税抜き価格</span>
+      <label for="tax_included">入力価格: </label>
+      <span th:if="${tax.tax_included == true}">税込価格</span>
+      <span th:if="${tax.tax_included == false}">税抜き価格</span>
     </div>
     <div class="form-group">
       <label for="rounding">端数処理: </label>
-      <span th:if="${tax.rounding == 'floor'}">切り捨て</span>
-      <span th:if="${tax.rounding == 'round'}">四捨五入</span>
-      <span th:if="${tax.rounding == 'ceil'}">切り上げ</span>
+      <span th:if="${tax.rounding == 'Floor'}">切り捨て</span>
+      <span th:if="${tax.rounding == 'Round'}">四捨五入</span>
+      <span th:if="${tax.rounding == 'Ceil'}">切り上げ</span>
     </div>
 
     <a
