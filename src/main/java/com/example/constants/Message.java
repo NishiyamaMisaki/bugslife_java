@@ -10,4 +10,5 @@ public final class Message {
 	public static final String MSG_VALIDATE_ERROR = "入力が不正です";
 	public static final String MSG_ERROR = "エラー";
 	public static final String MSG_SUCESS_PAYMENT_INSERT = "支払い情報を更新しました";
+	public static final Object MSG_SUCESS_SHIPPING = "商品を発送しました";
 }
