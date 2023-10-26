@@ -1,7 +1,11 @@
 package com.example.controller;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.constants.Message;
@@ -24,8 +30,11 @@ import com.example.enums.PaymentMethod;
 import com.example.enums.PaymentStatus;
 import com.example.form.OrderForm;
 import com.example.model.Order;
+import com.example.model.OrderDelivery;
 import com.example.service.OrderService;
 import com.example.service.ProductService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/orders")
@@ -134,5 +143,120 @@ public class OrderController {
 			e.printStackTrace();
 			return "redirect:/orders";
 		}
+	}
+
+	/**
+	 * 商品発送管理画面
+	 *
+	 * @param model
+	 * @param form
+	 * @return
+	 */
+
+	@GetMapping("/shipping")
+	public String shipping(Model model, @ModelAttribute("form") OrderForm form) {
+		// OrderDeliveryのリストを取得
+		List<OrderDelivery> orderDeliveriesList = orderService.findAllOrderDelivery();
+
+		// リストをモデルに追加
+		model.addAttribute("orderDeliveriesList", orderDeliveriesList);
+
+		return "order/shipping";
+	}
+
+	/**
+	 * 商品発送管理画面
+	 *
+	 * @param model
+	 * @param form
+	 * @return
+	 */
+	@PostMapping("/shipping")
+	public String updateOrders(@RequestParam("checkedIds") List<Long> checkedIds,
+			RedirectAttributes redirectAttributes) {
+		for (Long orderId : checkedIds) {
+			Optional<Order> orderOptional = orderService.findOne(orderId);
+			if (orderOptional.isPresent()) {
+				Order order = orderOptional.get();
+				order.setStatus(OrderStatus.SHIPPED);
+				orderService.save(order);
+				if (order.getStatus().equals(OrderStatus.SHIPPED)
+						&& order.getPaymentStatus().equals(PaymentStatus.PAID)) {
+					order.setStatus(OrderStatus.COMPLETED);
+					orderService.save(order);
+				}
+			}
+		}
+
+		redirectAttributes.addFlashAttribute("success", "発送しました。");
+
+		return "redirect:/orders/shipping";
+	}
+
+	/**
+	 * CSVインポート処理
+	 *
+	 * @param uploadFile
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@PostMapping("/upload_file")
+	public String uploadFile(@RequestParam("file") MultipartFile uploadFile, RedirectAttributes redirectAttributes) {
+
+		if (uploadFile.isEmpty()) {
+			// ファイルが存在しない場合
+			redirectAttributes.addFlashAttribute("error", "ファイルを選択してください。");
+			return "redirect:/orders/shipping";
+		}
+		if (!"text/csv".equals(uploadFile.getContentType())) {
+			// CSVファイル以外の場合
+			redirectAttributes.addFlashAttribute("error", "CSVファイルを選択してください。");
+
+			return "redirect:/orders/shipping";
+		}
+		try {
+			orderService.importCSV(uploadFile);
+			redirectAttributes.addFlashAttribute("success", "CSVファイルのインポートに成功しました。");
+			return "redirect:/orders/shipping";
+		} catch (Throwable e) {
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			e.printStackTrace();
+			return "redirect:orders/shipping";
+		}
+	}
+
+	/**
+	 * CSVテンプレートダウンロード処理
+	 *
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@PostMapping("/download")
+	public String download(HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		try (OutputStream os = response.getOutputStream();) {
+			String attachment = "attachment; filename=order_" + new Date().getTime() + ".csv";
+			response.setContentType("text/csv");
+			response.setHeader("Content-Disposition", attachment);
+
+			// ヘッダー行を書き込む
+			os.write("受注ID,出荷コード,出荷日,配達日,配達時間帯,ステータス\n".getBytes());
+
+			// データ行を書き込む
+			List<Order> orders = orderService.findAll().stream()
+					.filter(order -> order.getStatus().equals(OrderStatus.ORDERED)).collect(Collectors.toList());
+
+			for (Order order : orders) {
+				String line = order.getId() + "," + order.getShippingCode() + "," + order.getShippingDate() + ","
+						+ order.getDeliveryDate() + "," + order.getDeliveryTimezone() + "," + order.getStatus() + "\n";
+				os.write(line.getBytes());
+			}
+
+			os.flush();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

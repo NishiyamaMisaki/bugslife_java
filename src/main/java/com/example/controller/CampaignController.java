@@ -32,9 +32,7 @@ import com.example.enums.CampaignStatus;
 import com.example.enums.DiscountType;
 import com.example.form.CampaignForm;
 import com.example.model.Campaign;
-import com.example.model.Category;
 import com.example.service.CampaignService;
-import com.example.service.CategoryService;
 import com.example.utils.CheckUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,9 +43,6 @@ public class CampaignController {
 
 	@Autowired
 	private CampaignService campaignService;
-
-	@Autowired
-	private CategoryService categoryService;
 
 	/**
 	 * 一覧画面表示

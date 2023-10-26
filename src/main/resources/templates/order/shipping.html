@@ -14,25 +14,19 @@
         <!-- CSVの読み込み -->
         <form
           class="row col-6"
-          th:action="@{/orders/shipping}"
+          th:action="@{/orders/upload_file}"
           method="post"
           enctype="multipart/form-data"
         >
           <div class="input-group">
-            <input
-              class="form-control"
-              type="file"
-              id="file"
-              name="file"
-              accept=".csv"
-            />
+            <input class="form-control" type="file" name="file" accept=".csv" />
             <button type="submit" class="btn btn-primary">読込</button>
           </div>
         </form>
         <!-- テンプレートCSVのダウンロード -->
         <form
           th:method="post"
-          th:action="@{/orders/shipping/download}"
+          th:action="@{/orders/download}"
           enctype="multipart/form-data"
           class="col-4"
         >
@@ -51,14 +45,12 @@
     </div>
 
     <!-- CSVの読み込み内容を表示する -->
-    <div th:if="${orderShippingData}">
+    <div th:if="${orderDeliveriesList}">
       <!-- チェックを入れたデータのみ出荷済みに更新する -->
-      <form
-        th:action="@{/orders/shipping}"
-        th:method="'put'"
-        th:object="${orderShippingData}"
-      >
-        <button type="submit" class="btn btn-success">出荷情報更新</button>
+      <form th:action="@{/orders/shipping}" method="post">
+        <button type="submit" class="btn btn-success" id="updateButton">
+          出荷情報更新
+        </button>
         <table class="table">
           <thead>
             <tr>
@@ -68,72 +60,41 @@
               <th>出荷日</th>
               <th>配達日</th>
               <th>配達時間帯</th>
-              <th>ステータス</th>
             </tr>
           </thead>
           <tbody>
-            <tr th:each="orderShipping, st : *{orderShippingList}">
+            <tr th:each="orderDeliveries, st : ${orderDeliveriesList}">
               <td>
                 <input
                   class="row_check"
                   type="checkbox"
-                  th:field="*{orderShippingList[__${st.index}__].checked}"
+                  name="checkedIds"
+                  th:value="${orderDeliveries.orderId}"
                 />
               </td>
               <td>
-                <th:block th:text="${orderShipping.orderId}"></th:block>
-                <input
-                  type="hidden"
-                  th:field="*{orderShippingList[__${st.index}__].orderId}"
-                />
+                <th:block th:text="${orderDeliveries.orderId}"></th:block>
               </td>
               <td>
-                <th:block th:text="${orderShipping.shippingCode}"></th:block>
-                <input
-                  type="hidden"
-                  th:field="*{orderShippingList[__${st.index}__].shippingCode}"
-                />
+                <th:block th:text="${orderDeliveries.shippingCode}"></th:block>
               </td>
               <td>
-                <th:block th:text="${orderShipping.shippingDate}"></th:block>
-                <input
-                  type="hidden"
-                  th:field="*{orderShippingList[__${st.index}__].shippingDate}"
-                />
+                <th:block th:text="${orderDeliveries.shippingDate}"></th:block>
               </td>
               <td>
-                <th:block th:text="${orderShipping.deliveryDate}"></th:block>
-                <input
-                  type="hidden"
-                  th:field="*{orderShippingList[__${st.index}__].deliveryDate}"
-                />
+                <th:block th:text="${orderDeliveries.deliveryDate}"></th:block>
               </td>
               <td>
                 <th:block
-                  th:text="${orderShipping.deliveryTimezone}"
+                  th:text="${orderDeliveries.deliveryTimezone}"
                 ></th:block>
-                <input
-                  type="hidden"
-                  th:field="*{orderShippingList[__${st.index}__].deliveryTimezone}"
-                />
-              </td>
-              <td>
-                <span
-                  class="badge text-bg-danger"
-                  th:if="${orderShipping.uploadStatus == 'error'}"
-                  >エラー</span
-                >
-                <span
-                  class="badge text-bg-success"
-                  th:if="${orderShipping.uploadStatus == 'success'}"
-                  >成功</span
-                >
               </td>
             </tr>
           </tbody>
         </table>
       </form>
     </div>
+    <div id="error-message" style="color: red"></div>
   </th:block>
 </html>
 <script src="/js/order/order-shipping.js"></script>

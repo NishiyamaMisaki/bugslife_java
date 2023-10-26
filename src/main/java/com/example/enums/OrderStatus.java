@@ -42,9 +42,9 @@ public enum OrderStatus {
 		return name;
 	}
 
-	public static OrderStatus getOrderStatus(String code) {
+	public static OrderStatus getOrderStatus(String orderStatus2) {
 		for (OrderStatus orderStatus : OrderStatus.values()) {
-			if (orderStatus.getCode().equals(code)) {
+			if (orderStatus.getCode().equals(orderStatus2)) {
 				return orderStatus;
 			}
 		}

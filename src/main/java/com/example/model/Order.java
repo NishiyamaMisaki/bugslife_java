@@ -2,7 +2,9 @@ package com.example.model;
 
 import java.io.Serializable;
 import java.lang.String;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.example.enums.OrderStatus;
 import com.example.enums.PaymentMethod;
@@ -75,6 +77,10 @@ public class Order extends TimeEntity implements Serializable {
 	@JoinColumn(name = "order_id")
 	private List<OrderPayment> orderPayments;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "order_id")
+	private List<OrderDelivery> orderDeliveries;
+
 	/**
 	 * 支払い方法名を取得する
 	 */
@@ -103,9 +109,68 @@ public class Order extends TimeEntity implements Serializable {
 	public String getStatusName() {
 		var value = OrderStatus.getOrderStatus(this.status);
 		if (value != null) {
-			return value.getName();
+			if (value.equals(OrderStatus.SHIPPED)) {
+				return value.getName();
+			}
 		}
 		return "";
 	}
 
+	/**
+	 * 配達日
+	 */
+	public Date getDeliveryDate() {
+		return getCreateAt();
+	}
+
+	public Date setDeliveryDate() {
+		return getCreateAt();
+	}
+
+	/**
+	 * 配達時間帯
+	 */
+	public String getDeliveryTimezone() {
+		return "9:00 - 12:00";
+	}
+
+	public String setDeliveryTimezone() {
+		return "9:00 - 12:00";
+	}
+
+	/**
+	 * 出荷コードを生成する
+	 *
+	 * @return 一意の出荷コード
+	 */
+	public String getShippingCode() {
+		UUID uuid = UUID.randomUUID();
+		return uuid.toString();
+	}
+
+	public String setShippingCode() {
+		UUID uuid = UUID.randomUUID();
+		return uuid.toString();
+	}
+
+	/**
+	 * 出荷日
+	 */
+	public Date getShippingDate() {
+		// 出荷日は、出荷ステータスが「出荷済み」の場合に設定する
+		if (this.status.equals(OrderStatus.SHIPPED)) {
+			return getUpdateAt();
+		}
+		return null;
+	}
+
+	public Date setShippingDate(String data, int date) {
+		// 出荷日は、出荷ステータスが「出荷済み」の場合に設定する
+		if (this.status.equals(OrderStatus.SHIPPED)) {
+			return getUpdateAt();
+		}
+		return null;
+	}
+
+	public void setOrderStatus(Object orderStatus) {}
 }

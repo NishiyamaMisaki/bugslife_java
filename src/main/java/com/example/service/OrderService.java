@@ -3,20 +3,32 @@ package com.example.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import com.example.enums.OrderStatus;
 import com.example.enums.PaymentStatus;
 import com.example.form.OrderForm;
 import com.example.model.Order;
+import com.example.model.OrderDelivery;
 import com.example.model.OrderPayment;
 import com.example.model.OrderProduct;
 import com.example.model.Tax;
+import com.example.repository.OrderDeliveryRepository;
 import com.example.repository.OrderRepository;
 import com.example.repository.ProductRepository;
 
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,6 +39,9 @@ public class OrderService {
 
 	@Autowired
 	private ProductRepository productRepository;
+
+	@Autowired
+	private OrderDeliveryRepository orderDeliveryRepository;
 
 	public List<Order> findAll() {
 		return orderRepository.findAll();
@@ -143,4 +158,76 @@ public class OrderService {
 		orderRepository.save(order);
 	}
 
+	/**
+	 * CSVインポート処理
+	 *
+	 * @param file
+	 * @throws IOException
+	 */
+	@Transactional
+	public void importCSV(MultipartFile file) throws IOException {
+		try (BufferedReader br = new BufferedReader(
+				new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+			String line = br.readLine(); // 1行目はヘッダーなので読み飛ばす
+			List<OrderDelivery> orders = new ArrayList<>();
+			while ((line = br.readLine()) != null) {
+				final String[] split = line.replace("\"", "").split(",");
+				final Integer id = Integer.parseInt(split[0]);
+				final String shippingCode = split[1];
+
+				SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
+				Date shippingDate = null;
+
+				if (!split[2].isEmpty()) {
+					try {
+						if (split[2].equals("null")) {
+							// "null" の場合、現在日時を shippingDate に設定
+							shippingDate = new Date(); // 現在日時を取得
+						} else {
+							shippingDate = inputDateFormat.parse(split[2]);
+						}
+					} catch (ParseException e) {
+						// ログにエラーメッセージを記録
+						System.err.println("発送日が不正です: " + split[2]);
+					}
+				} else {
+					split[2] = "0000-00-00";
+					shippingDate = null; // shippingDateをnullに設定する
+				}
+
+				Date deliveryDate = null;
+				if (!split[3].isEmpty()) {
+					try {
+						if (split[3].equals("null")) {
+							deliveryDate = new Date(); // 現在日時を取得
+						} else {
+							deliveryDate = inputDateFormat.parse(split[3]);
+						}
+					} catch (ParseException e) {
+						// ログにエラーメッセージを記録
+						System.err.println("発送日が不正です: " + split[2]);
+					}
+				} else {
+					deliveryDate = null; // deliveryDateをnullに設定する
+				}
+
+				final String deliveryTimezone = split[4];
+				final String status = split[5];
+
+				OrderDelivery order = new OrderDelivery(id, shippingCode, shippingDate, deliveryDate, deliveryTimezone,
+						status);
+
+				orders.add(order);
+			}
+			// OrderDeliveryエンティティをデータベースに保存
+			orderDeliveryRepository.saveAll(orders);
+
+		} catch (IOException e) {
+			throw new RuntimeException("ファイルが読み込めません", e);
+		}
+	}
+
+	public List<OrderDelivery> findAllOrderDelivery() {
+		return orderDeliveryRepository.findAll();
+	}
 }
